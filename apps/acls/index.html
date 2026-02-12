@@ -1,1 +1,786 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Web Tools - Clinical Decision Support by Dr. Tor</title>
+    <meta name="description" content="Free medical web tools and calculators for healthcare professionals. ACLS, PALS, Drug Mixing, MEWS Score, and more.">
+    <meta name="keywords" content="medical calculator, ACLS, PALS, drug mixing, MEWS, emergency medicine, clinical tools">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5568d3;
+            --secondary: #764ba2;
+            --accent: #f093fb;
+            --text-dark: #2d3748;
+            --text-light: #718096;
+            --bg-light: #f7fafc;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+            --success: #48bb78;
+            --warning: #ed8936;
+            --danger: #f56565;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: var(--bg-light);
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 2rem 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            margin-bottom: 1rem;
+        }
+
+        .author-info {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+
+        /* Search and Filter Section */
+        .controls {
+            background: white;
+            padding: 2rem 0;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .controls-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .search-bar {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            font-size: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            transition: all 0.3s;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            font-size: 1.2rem;
+        }
+
+        /* Category Filter */
+        .category-filter {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .category-btn {
+            padding: 0.6rem 1.5rem;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .category-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .category-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 20px;
+        }
+
+        .stats-banner {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* App Grid */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .app-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .app-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .app-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+            border-color: var(--primary);
+        }
+
+        .app-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .app-card h3 {
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .app-card p {
+            color: var(--text-light);
+            margin-bottom: 1.25rem;
+            line-height: 1.6;
+        }
+
+        .tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.25rem;
+        }
+
+        .tag {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 0.35rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .tag.emergency { background: linear-gradient(135deg, #f56565, #e53e3e); }
+        .tag.icu { background: linear-gradient(135deg, #ed8936, #dd6b20); }
+        .tag.nursing { background: linear-gradient(135deg, #48bb78, #38a169); }
+        .tag.cardiac { background: linear-gradient(135deg, #f56565, #c53030); }
+        .tag.pediatric { background: linear-gradient(135deg, #f093fb, #d946ef); }
+        .tag.opd { background: linear-gradient(135deg, #4299e1, #3182ce); }
+        .tag.management { background: linear-gradient(135deg, #9f7aea, #805ad5); }
+        .tag.calculator { background: linear-gradient(135deg, #38b2ac, #319795); }
+
+        .launch-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 0.85rem 1.75rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .launch-btn:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        /* No Results */
+        .no-results {
+            text-align: center;
+            padding: 4rem 2rem;
+            display: none;
+        }
+
+        .no-results.show {
+            display: block;
+        }
+
+        .no-results-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .no-results h3 {
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .no-results p {
+            color: var(--text-light);
+        }
+
+        /* Footer */
+        footer {
+            background: white;
+            border-top: 1px solid var(--border);
+            padding: 3rem 0 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            text-align: center;
+        }
+
+        .footer-content h3 {
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .footer-content p {
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .disclaimer {
+            background: #fffbeb;
+            border-left: 4px solid var(--warning);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+        }
+
+        .disclaimer strong {
+            color: var(--warning);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .social-links {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .social-links a {
+            color: var(--primary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .social-links a:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .app-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .category-filter {
+                justify-content: flex-start;
+            }
+
+            .stats-banner {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Loading Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .app-card {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <h1>🏥 Medical Web Tools</h1>
+            <p class="subtitle">Clinical Decision Support Tools for Healthcare Professionals</p>
+            <p class="author-info">Developed by Dr. Tor | Emergency Medicine Physician<br>
+            Rajavithi Hospital • Rajavej Chiangmai Hospital • Facetime Clinic</p>
+        </div>
+    </header>
+
+    <!-- Search and Filter Controls -->
+    <div class="controls">
+        <div class="controls-content">
+            <div class="search-bar">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="ค้นหา tools เช่น ACLS, drug mixing, MEWS...">
+            </div>
+            
+            <div class="category-filter">
+                <button class="category-btn active" data-category="all">ทั้งหมด</button>
+                <button class="category-btn" data-category="emergency">🚨 Emergency</button>
+                <button class="category-btn" data-category="calculator">🔢 Calculator</button>
+                <button class="category-btn" data-category="protocols">📋 Protocols</button>
+                <button class="category-btn" data-category="management">💼 Management</button>
+                <button class="category-btn" data-category="nursing">👩‍⚕️ Nursing</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Stats Banner -->
+        <div class="stats-banner">
+            <div class="stat-card">
+                <span class="stat-number" id="totalApps">15</span>
+                <span class="stat-label">Medical Tools</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">100%</span>
+                <span class="stat-label">Free & Open</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">📱</span>
+                <span class="stat-label">Mobile Optimized</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">🇹🇭</span>
+                <span class="stat-label">Made in Thailand</span>
+            </div>
+        </div>
+
+        <!-- App Grid -->
+        <div class="app-grid" id="appGrid">
+            <!-- ACLS Protocol -->
+            <div class="app-card" data-category="emergency protocols">
+                <span class="app-icon">🚨</span>
+                <h3>ACLS Protocols</h3>
+                <p>Advanced Cardiac Life Support protocols พร้อม algorithms สำหรับ cardiac arrest และ arrhythmias</p>
+                <div class="tags">
+                    <span class="tag emergency">Emergency</span>
+                    <span class="tag cardiac">Cardiac</span>
+                </div>
+                <a href="apps/acls/" class="launch-btn">เปิดใช้งาน →</a>
+            </div>
+
+            <!-- PALS Protocol -->
+            <div class="app-card" data-category="emergency protocols">
+                <span class="app-icon">👶</span>
+                <h3>PALS Protocols</h3>
+                <p>Pediatric Advanced Life Support สำหรับการช่วยชีวิตเด็กและทารก</p>
+                <div class="tags">
+                    <span class="tag emergency">Emergency</span>
+                    <span class="tag pediatric">Pediatric</span>
+                </div>
+                <a href="apps/pals/" class="launch-btn">เปิดใช้งาน →</a>
+            </div>
+
+            <!-- Drug Mixing Calculator -->
+            <div class="app-card" data-category="emergency calculator">
+                <span class="app-icon">💊</span>
+                <h3>Drug Mixing Calculator</h3>
+                <p>คำนวณการเจือจาง drip rate และ bolus dose สำหรับยาฉุกเฉินและ ICU</p>
+                <div class="tags">
+                    <span class="tag emergency">Emergency</span>
+                    <span class="tag icu">ICU</span>
+                    <span class="tag calculator">Calculator</span>
+                </div>
+                <a href="apps/drug-mixing/" class="launch-btn">เปิดใช้งาน →</a>
+            </div>
+
+            <!-- MEWS Score -->
+            <div class="app-card" data-category="calculator nursing">
+                <span class="app-icon">📊</span>
+                <h3>MEWS Calculator</h3>
+                <p>Modified Early Warning Score สำหรับประเมินความรุนแรงของผู้ป่วย</p>
+                <div class="tags">
+                    <span class="tag nursing">Nursing</span>
+                    <span class="tag calculator">Calculator</span>
+                </div>
+                <a href="apps/mews/" class="launch-btn">เปิดใช้งาน →</a>
+            </div>
+
+            <!-- Queue Display System -->
+            <div class="app-card" data-category="management">
+                <span class="app-icon">📺</span>
+                <h3>Queue Display System</h3>
+                <p>ระบบแสดงคิวผู้ป่วยสำหรับทีวี พร้อมการจัดการคิวแบบ real-time</p>
+                <div class="tags">
+                    <span class="tag opd">OPD</span>
+                    <span class="tag management">Management</span>
+                </div>
+                <a href="apps/queue-display/" class="launch-btn">เปิดใช้งาน →</a>
+            </div>
+
+            <!-- Nursing Workload Calculator -->
+            <div class="app-card" data-category="calculator nursing management">
+                <span class="app-icon">👩‍⚕️</span>
+                <h3>Nursing Workload Calculator</h3>
+                <p>คำนวณภาระงานพยาบาลและจำนวนพยาบาลที่ต้องการ</p>
+                <div class="tags">
+                    <span class="tag nursing">Nursing</span>
+                    <span class="tag management">Management</span>
+                    <span class="tag calculator">Calculator</span>
+                </div>
+                <a href="apps/nursing-workload/" class="launch-btn">เปิดใช้งาน →</a>
+            </div>
+
+            <!-- GCS Calculator -->
+            <div class="app-card" data-category="emergency calculator">
+                <span class="app-icon">🧠</span>
+                <h3>GCS Calculator</h3>
+                <p>Glasgow Coma Scale สำหรับประเมินระดับความรู้สึกตัว</p>
+                <div class="tags">
+                    <span class="tag emergency">Emergency</span>
+                    <span class="tag calculator">Calculator</span>
+                </div>
+                <a href="apps/gcs/" class="launch-btn">เปิดใช้งาน →</a>
+            </div>
+
+            <!-- IV Fluid Calculator -->
+            <div class="app-card" data-category="calculator">
+                <span class="app-icon">💧</span>
+                <h3>IV Fluid Calculator</h3>
+                <p>คำนวณปริมาณน้ำเกลือและ maintenance fluid</p>
+                <div class="tags">
+                    <span class="tag calculator">Calculator</span>
+                    <span class="tag pediatric">Pediatric</span>
+                </div>
+                <a href="apps/iv-fluid/" class="launch-btn">เปิดใช้งาน →</a>
+            </div>
+
+            <!-- Shock Index -->
+            <div class="app-card" data-category="emergency calculator">
+                <span class="app-icon">⚡</span>
+                <h3>Shock Index Calculator</h3>
+                <p>คำนวณ Shock Index และ Modified Shock Index</p>
+                <div class="tags">
+                    <span class="tag emergency">Emergency</span>
+                    <span class="tag calculator">Calculator</span>
+                </div>
+                <a href="apps/shock-index/" class="launch-btn">เปิดใช้งาน →</a>
+            </div>
+
+            <!-- Ventilator Settings -->
+            <div class="app-card" data-category="calculator">
+                <span class="app-icon">🫁</span>
+                <h3>Ventilator Settings</h3>
+                <p>คำนวณการตั้งค่า ventilator และ tidal volume</p>
+                <div class="tags">
+                    <span class="tag icu">ICU</span>
+                    <span class="tag calculator">Calculator</span>
+                </div>
+                <a href="apps/ventilator/" class="launch-btn">เปิดใช้งาน →</a>
+            </div>
+
+            <!-- ABG Interpreter -->
+            <div class="app-card" data-category="emergency calculator">
+                <span class="app-icon">🩸</span>
+                <h3>ABG Interpreter</h3>
+                <p>แปลผล Arterial Blood Gas และวินิจฉัย acid-base disorder</p>
+                <div class="tags">
+                    <span class="tag emergency">Emergency</span>
+                    <span class="tag icu">ICU</span>
+                    <span class="tag calculator">Calculator</span>
+                </div>
+                <a href="apps/abg/" class="launch-btn">เปิดใช้งาน →</a>
+            </div>
+
+            <!-- BMI Calculator -->
+            <div class="app-card" data-category="calculator">
+                <span class="app-icon">⚖️</span>
+                <h3>BMI & Body Composition</h3>
+                <p>คำนวณ BMI, ideal body weight และประเมิน body composition</p>
+                <div class="tags">
+                    <span class="tag calculator">Calculator</span>
+                </div>
+                <a href="apps/bmi/" class="launch-btn">เปิดใช้งาน →</a>
+            </div>
+
+            <!-- Drug Dose Calculator -->
+            <div class="app-card" data-category="emergency calculator">
+                <span class="app-icon">💉</span>
+                <h3>Pediatric Drug Dose</h3>
+                <p>คำนวณ dose ยาเด็กตามน้ำหนักและอายุ</p>
+                <div class="tags">
+                    <span class="tag pediatric">Pediatric</span>
+                    <span class="tag calculator">Calculator</span>
+                </div>
+                <a href="apps/ped-dose/" class="launch-btn">เปิดใช้งาน →</a>
+            </div>
+
+            <!-- CHA2DS2-VASc Score -->
+            <div class="app-card" data-category="calculator">
+                <span class="app-icon">❤️</span>
+                <h3>CHA2DS2-VASc Score</h3>
+                <p>ประเมินความเสี่ยง stroke ใน atrial fibrillation</p>
+                <div class="tags">
+                    <span class="tag cardiac">Cardiac</span>
+                    <span class="tag calculator">Calculator</span>
+                </div>
+                <a href="apps/chadsvasc/" class="launch-btn">เปิดใช้งาน →</a>
+            </div>
+
+            <!-- CURB-65 Score -->
+            <div class="app-card" data-category="emergency calculator">
+                <span class="app-icon">🫁</span>
+                <h3>CURB-65 Score</h3>
+                <p>ประเมินความรุนแรงของปอดบวมและตัดสินใจ admit</p>
+                <div class="tags">
+                    <span class="tag emergency">Emergency</span>
+                    <span class="tag calculator">Calculator</span>
+                </div>
+                <a href="apps/curb65/" class="launch-btn">เปิดใช้งาน →</a>
+            </div>
+        </div>
+
+        <!-- No Results Message -->
+        <div class="no-results" id="noResults">
+            <div class="no-results-icon">🔍</div>
+            <h3>ไม่พบผลลัพธ์</h3>
+            <p>ลองค้นหาด้วยคำอื่น หรือเลือก category ที่แตกต่างกัน</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <h3>About This Project</h3>
+            <p>Medical Web Tools รวบรวม web applications สำหรับบุคลากรทางการแพทย์</p>
+            <p>พัฒนาโดย Dr. Tor - Emergency Medicine Physician</p>
+            
+            <div class="disclaimer">
+                <strong>⚠️ Medical Disclaimer</strong>
+                <p>เครื่องมือเหล่านี้พัฒนาขึ้นเพื่อช่วยเหลือบุคลากรทางการแพทย์เท่านั้น ไม่ควรใช้สำหรับการวินิจฉัยหรือรักษาด้วยตนเอง 
+                ข้อมูลที่ได้จากเครื่องมือเหล่านี้ควรใช้ประกอบการตัดสินใจทางคลินิกเท่านั้น</p>
+            </div>
+
+            <div class="social-links">
+                <a href="https://github.com/yourusername" target="_blank">📦 GitHub</a>
+                <a href="mailto:contact@example.com">✉️ Contact</a>
+                <a href="#" onclick="alert('Share feature coming soon!')">🔗 Share</a>
+            </div>
+
+            <p style="margin-top: 2rem; color: var(--text-light); font-size: 0.9rem;">
+                © 2024 Medical Web Tools by Dr. Tor | All Rights Reserved<br>
+                Last Updated: February 2024 | Version 1.0
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const searchInput = document.getElementById('searchInput');
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        const appCards = document.querySelectorAll('.app-card');
+        const noResults = document.getElementById('noResults');
+        const totalAppsElement = document.getElementById('totalApps');
+
+        // Set total apps count
+        totalAppsElement.textContent = appCards.length;
+
+        // Search functionality
+        searchInput.addEventListener('input', filterApps);
+
+        // Category filter
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                categoryBtns.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+                // Filter apps
+                filterApps();
+            });
+        });
+
+        function filterApps() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const activeCategory = document.querySelector('.category-btn.active').dataset.category;
+            let visibleCount = 0;
+
+            appCards.forEach(card => {
+                const cardText = card.textContent.toLowerCase();
+                const cardCategories = card.dataset.category.toLowerCase();
+                
+                const matchesSearch = cardText.includes(searchTerm);
+                const matchesCategory = activeCategory === 'all' || cardCategories.includes(activeCategory);
+
+                if (matchesSearch && matchesCategory) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Show/hide no results message
+            if (visibleCount === 0) {
+                noResults.classList.add('show');
+            } else {
+                noResults.classList.remove('show');
+            }
+        }
+
+        // Smooth scroll for internal links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Press '/' to focus search
+            if (e.key === '/' && !searchInput.contains(document.activeElement)) {
+                e.preventDefault();
+                searchInput.focus();
+            }
+            // Press 'Esc' to clear search
+            if (e.key === 'Escape') {
+                searchInput.value = '';
+                searchInput.blur();
+                filterApps();
+            }
+        });
+
+        // Add animation on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        appCards.forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s, transform 0.5s';
+            observer.observe(card);
+        });
+
+        // Update last updated date
+        console.log('Medical Web Tools loaded successfully');
+        console.log(`Total apps: ${appCards.length}`);
+    </script>
+</body>
+</html>
